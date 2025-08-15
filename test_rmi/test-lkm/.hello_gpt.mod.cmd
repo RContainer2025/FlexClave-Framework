@@ -1,0 +1,1 @@
+cmd_/home/cwz/workspace/test_rmi/test-lkm/hello_gpt.mod := printf '%s\n'   hello_gpt.o | awk '!x[$$0]++ { print("/home/cwz/workspace/test_rmi/test-lkm/"$$0) }' > /home/cwz/workspace/test_rmi/test-lkm/hello_gpt.mod

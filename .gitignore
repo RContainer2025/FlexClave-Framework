@@ -1,0 +1,7 @@
+buildroot/local.mk
+buildroot/tmp_realm_overlay
+
+logs/
+output/
+
+FVP/Base_RevC_AEMvA_pkg/*.log

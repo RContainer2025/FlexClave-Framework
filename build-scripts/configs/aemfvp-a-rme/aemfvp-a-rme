@@ -1,0 +1,129 @@
+# Copyright (c) 2023, ARM Limited and Contributors. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# Redistributions of source code must retain the above copyright notice, this
+# list of conditions and the following disclaimer.
+#
+# Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+#
+# Neither the name of ARM nor the names of its contributors may be used
+# to endorse or promote products derived from this software without specific
+# prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+
+# *** Toolchain definitions *** #
+
+# The environment variable TOOLCHAINS_PATH is set in the docker image and
+# points to the base path where multiple toolchains are available.
+# It is up to each component configuration to select the variant required
+# to build such component:
+# <COMPONENT>_GCC_PATH="${GCC_BASE_NAME}-${VARIANT_ELF}/bin"
+
+HOST_ARCH="$(uname -m)"
+GCC_VERSION="11.2-2022.02"
+VARIANT_ELF="aarch64-none-elf"
+VARIANT_LINUX_GNU="aarch64-none-linux-gnu"
+GCC_BASE_NAME="${TC_PATH}/gcc-arm-${GCC_VERSION}-${HOST_ARCH}"
+# *** End Toolchain *** #
+
+
+# *** RMM Options *** #
+RMM_PATH="${TOP_DIR}/rmm"
+RMM_BUILD_DIR="${RMM_PATH}/build"
+RMM_BUILD_TYPE=Debug
+RMM_LOG_LEVEL=40
+RMM_GCC_PATH="${GCC_BASE_NAME}-${VARIANT_ELF}/bin"
+RMM_OUT_BIN="${RMM_BUILD_DIR}/${RMM_BUILD_TYPE}/rmm.img"
+# *** End RMM *** #
+
+
+# *** TF-A Options *** #
+TF_A_RME_BUILD_ENABLED=1
+TF_A_PATH="${TOP_DIR}/tf-a"
+TF_A_GCC_PATH="${GCC_BASE_NAME}-${VARIANT_ELF}/bin"
+TF_A_ARCH=aarch64
+TF_A_PLATS=fvp
+TF_A_BUILD_TYPE="debug" # debug=1, release=0
+
+# # TF-A 3-World
+TF_A_3W_FLAGS="\
+	ENABLE_RME=1 \
+	RMM=${RMM_OUT_BIN} \
+	ENABLE_SVE_FOR_NS=1 \
+	ENABLE_SVE_FOR_SWD=1 \
+	ARM_DISABLE_TRUSTED_WDOG=1 \
+	FVP_HW_CONFIG_DTS=fdts/fvp-base-gicv3-psci-1t.dts
+	ARM_ARCH_MINOR=5 \
+	BRANCH_PROTECTION=1 \
+	CTX_INCLUDE_PAUTH_REGS=1 \
+	CTX_INCLUDE_EL2_REGS=1 \
+	CTX_INCLUDE_MTE_REGS=1 \
+	"
+
+TF_A_PRELOADED_KERNEL="\
+	ARM_LINUX_KERNEL_AS_BL33=1 \
+	PRELOADED_BL33_BASE=0x84000000
+	"
+# *** End TF-A *** #
+
+
+# *** Linux Options *** #
+LINUX_RME_BUILD_ENABLED=1
+LINUX_ARCH=arm64
+LINUX_PATH="${TOP_DIR}/linux"
+LINUX_GCC_PATH="${GCC_BASE_NAME}-${VARIANT_LINUX_GNU}/bin"
+LINUX_CROSS_COMPILE=$VARIANT_LINUX_GNU-
+# If host arch is aarch64 change to appropriate compiler
+if [ "$HOST_ARCH" == "aarch64" ]; then
+	LINUX_GCC_PATH="/usr/bin/gcc"
+	LINUX_CROSS_COMPILE=""
+fi
+LINUX_IMAGE=Image
+# *** End Linux *** #
+
+
+# *** KvmTool Options *** #
+KVM_TOOL_PATH="${TOP_DIR}/kvmtool"
+# *** End KvmTool *** #
+
+
+# *** Buildroot Options *** #
+# Note: buildroot builds kvmtool, the path for a rme enabled kvmtool is defined in KvmTool Options
+BUILDROOT_PATH="${TOP_DIR}/buildroot"
+BUILDROOT_GCC_PATH="${GCC_BASE_NAME}-${VARIANT_LINUX_GNU}/bin"
+BUILDROOT_CROSS_COMPILE=$VARIANT_LINUX_GNU-
+# If host arch is aarch64 change to appropriate compiler
+if [ "$HOST_ARCH" == "aarch64" ]; then
+	BUILDROOT_GCC_PATH="/usr/bin/gcc"
+	BUILDROOT_CROSS_COMPILE=""
+fi
+BUILDROOT_CONFIG_FILE="${TOP_DIR}/build-scripts/configs/aemfvp-a-rme/buildroot/2020.05.config"
+ROOTFS_OVERLAY="${TOP_DIR}/build-scripts/configs/aemfvp-a-rme/buildroot/rootfs_overlay"
+# *** End Buildroot *** #
+
+# Set output folder
+OUTPUT_PLATFORM_DIR="${TOP_DIR}/output/aemfvp-a-rme"
+
+# *** Add what is built *** #
+BUILD_SCRIPTS="\
+	build-rmm.sh \
+	build-tf-a.sh \
+	build-linux.sh \
+	build-buildroot.sh \
+	"

@@ -1,0 +1,1 @@
+cmd_/home/cwz/workspace/test_rmi/test-lkm/old_lkm.mod := printf '%s\n'   old_lkm.o | awk '!x[$$0]++ { print("/home/cwz/workspace/test_rmi/test-lkm/"$$0) }' > /home/cwz/workspace/test_rmi/test-lkm/old_lkm.mod

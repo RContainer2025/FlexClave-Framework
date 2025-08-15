@@ -1,0 +1,1 @@
+cmd_/home/cwz/workspace/test_rmi/test-lkm/Module.symvers :=  scripts/mod/modpost      -o /home/cwz/workspace/test_rmi/test-lkm/Module.symvers -i Module.symvers -e  -T /home/cwz/workspace/test_rmi/test-lkm/modules.order
