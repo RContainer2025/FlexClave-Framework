@@ -4,7 +4,7 @@ Official ARM Tutorial: docs/aemfvp-a-rme/user-guide.rst · master · Arm Referen
 
 FVP Version: 11.21.15
 
-### Overview of the CCA Software Stack
+## Overview of the CCA Software Stack
 
 | Component Name           | Repository URL <br> Version (Tag🏷️ / Commit 🆔)                | Execution Level         | Function Description                           | Retained? |
 | ------------------------ | ------------------------------------------------------------ | ----------------------- | ---------------------------------------------- | --------- |
@@ -20,3 +20,6 @@ FVP Version: 11.21.15
 | Buildroot                | https://github.com/buildroot/buildroot.git   🏷️ 2020.05       | EL0/1/2   R-EL0/1       | Lightweight FS for host and VMs                | ✅         |
 
 You can check flexclave linux modification on [Container](linux/arch/arm64/mm) and [VM](linux/arch/arm64/kvm), ATF modification on [gpt_rme](tf-a/lib/gpt_rme).
+
+## TODO 
+**We are currently porting this project to QEMU-Linaro and continuously improving it.**
